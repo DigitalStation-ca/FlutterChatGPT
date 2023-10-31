@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:azure_chat/src/api_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -15,8 +14,9 @@ class ChatMessage {
   String content;
   MessageType messageType;
 
+  // will automatically be called by jsonEncode()
   Map<String, String> toJson() {
-    return {"role": messageType.name, "content": content};
+    return {'role': messageType.name, 'content': content};
   }
 
   ChatMessage({required this.content, required this.messageType});
@@ -32,24 +32,8 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   final _textInputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
-  final List<ChatMessage> _chatMessages = [
-    // ChatMessage(
-    //     content: "Hello I am GPT", messageType: MessageType.languageModel),
-    ChatMessage(content: "Hello GPT, how are you", messageType: MessageType.user),
-    ChatMessage(content: '''
-  In Python, you can determine the size (i.e., the number of elements) of an array, list, or any iterable using the built-in **len()** function. Here's how to do it:
-
-  ```python
-  my_array = [1, 2, 3, 4, 5, 6, 7]
-  size = len(my_array)
-  print("The size of the array is:", size)
-  ```
-
-  In this example, we define an array called `my_array`, and then we use the `len()` function to obtain the size of the array and print it.
-        ''', messageType: MessageType.assistant),
-  ];
   bool _isLoading = false;
+  final List<ChatMessage> _chatMessages = [ChatMessage(content: 'Hello! How can I assist you today?', messageType: MessageType.assistant)];
 
   @override
   void dispose() {
@@ -58,15 +42,8 @@ class _ChatState extends State<Chat> {
     super.dispose();
   }
 
-  void _onNewMessageSubmit(String message) {
-    setState(() {
-      _chatMessages.add(ChatMessage(content: message, messageType: MessageType.user));
-    });
-    _textInputController.clear();
-    _queryAssistantResponse();
-  }
-
   void _scrollToEnd() {
+    // scroll to the max extent after frame is done rendering (or else maxScrollExtent might not be updated yet)
     SchedulerBinding.instance.addPostFrameCallback((_) => _scrollController.animateTo(_scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 200), curve: Curves.fastOutSlowIn));
   }
@@ -75,39 +52,56 @@ class _ChatState extends State<Chat> {
     // ignore if no text
     if (_textInputController.text.isEmpty) return;
 
+    // add message to list and query assistant response
     setState(() {
       _chatMessages.add(ChatMessage(content: _textInputController.text, messageType: MessageType.user));
       _isLoading = true;
     });
-
-    _scrollToEnd();
-
     _textInputController.clear();
-    FocusManager.instance.primaryFocus?.unfocus();
     _queryAssistantResponse();
+
+    // unfocus primary node -> will dimss keyboard
+    FocusManager.instance.primaryFocus?.unfocus();
+    _scrollToEnd();
   }
 
   void _queryAssistantResponse() async {
+    // prepare and send request
     final response = await http.post(
       Uri.parse(AZURE_OPENAI_ENDPOINT),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'api-key': AZURE_OPENAI_KEY,
       },
-      body: jsonEncode({"messages": _chatMessages}),
+      body: jsonEncode({'messages': _chatMessages}),
     );
 
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      final choices = body["choices"] as List<dynamic>;
-      final message = choices[0]["message"]["content"] as String;
-      setState(() {
-        _chatMessages.add(ChatMessage(content: message, messageType: MessageType.assistant));
-        _isLoading = false;
-      });
-
-      _scrollToEnd();
+    // make sure response successful
+    if (response.statusCode != 200) {
+      print('Failed to fetch from azure OpenAI. Check your Azure OpenAI endpoint and key.');
+      return;
     }
+
+    // parse body to extract message
+    final body = jsonDecode(response.body);
+    String? message;
+    try {
+      message = body['choices'][0]['message']['content'];
+    } catch (e) {
+      print('Failed to parse response body with error ${e.toString()}');
+      return;
+    }
+
+    // validate message and add it to the message list
+    if (message == null || message.isEmpty) {
+      print('Failed to parse response body.');
+      return;
+    }
+    setState(() {
+      _chatMessages.add(ChatMessage(content: message!, messageType: MessageType.assistant));
+      _isLoading = false;
+    });
+    _scrollToEnd();
   }
 
   @override
@@ -166,15 +160,15 @@ class _ChatState extends State<Chat> {
                       keyboardType: TextInputType.multiline,
                       maxLines: 6,
                       minLines: 1,
-                      onSubmitted: _onNewMessageSubmit,
                     ),
                   ),
                 ),
                 const SizedBox(
+                  // used to add a little spacing between the elements
                   width: 8,
-                  height: 0,
                 ),
                 SizedBox(
+                  // using a SizedBox as parent so that ElevatedButton and Loading are the same size
                   width: 45,
                   height: 45,
                   child: _isLoading
@@ -189,7 +183,6 @@ class _ChatState extends State<Chat> {
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
                             padding: const EdgeInsets.all(0),
-                            foregroundColor: theme.colorScheme.primaryContainer,
                             backgroundColor: theme.colorScheme.primaryContainer,
                           ),
                           child: const Icon(
