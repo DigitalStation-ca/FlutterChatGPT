@@ -14,7 +14,10 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: const ColorScheme.dark(
-            primaryContainer: Color(0xFF005e49), secondaryContainer: Color(0xFF222d35), background: Color(0xFF08141c)),
+          primaryContainer: Color(0xFF005e49), // green
+          secondaryContainer: Color(0xFF222d35), // light gray
+          background: Color(0xFF08141c), // almost black
+        ),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Azure OpenAI Chat Demo'),
