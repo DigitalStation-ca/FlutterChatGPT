@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:azure_chat/src/api_keys.dart';
+import 'package:azure_chat/src/api_keys.dart'; // make sure you create a local version of this file with your specific keys!
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -37,8 +37,9 @@ class _ChatState extends State<Chat> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
+    // Clean up the controllers
     _textInputController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -60,7 +61,7 @@ class _ChatState extends State<Chat> {
     _textInputController.clear();
     _queryAssistantResponse();
 
-    // unfocus primary node -> will dimss keyboard
+    // unfocus primary node -> will dismiss keyboard
     FocusManager.instance.primaryFocus?.unfocus();
     _scrollToEnd();
   }
