@@ -33,7 +33,9 @@ class _ChatState extends State<Chat> {
   final _textInputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
-  final List<ChatMessage> _chatMessages = [ChatMessage(content: 'Hello! How can I assist you today?', messageType: MessageType.assistant)];
+  final List<ChatMessage> _chatMessages = [
+    ChatMessage(content: 'Hello! How can I assist you today?', messageType: MessageType.assistant),
+  ];
 
   @override
   void dispose() {
@@ -131,7 +133,9 @@ class _ChatState extends State<Chat> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           child: MarkdownBody(
-                            styleSheet: MarkdownStyleSheet.fromTheme(theme.copyWith(cardTheme: const CardTheme(color: Color(0xFF13181c)))),
+                            styleSheet: MarkdownStyleSheet.fromTheme(
+                              theme.copyWith(cardTheme: const CardTheme(color: Color(0xFF13181c))),
+                            ),
                             data: _chatMessages[index].content,
                           ),
                         )),
@@ -151,12 +155,13 @@ class _ChatState extends State<Chat> {
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
                     ),
                     child: TextField(
+                      // scroll to end after keyboard is visible
                       onTap: () => Future.delayed(const Duration(milliseconds: 500), _scrollToEnd),
                       decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(10),
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          border: InputBorder.none,
-                          hintText: 'Send a message'),
+                        contentPadding: EdgeInsets.all(10),
+                        border: InputBorder.none,
+                        hintText: 'Send a message',
+                      ),
                       controller: _textInputController,
                       keyboardType: TextInputType.multiline,
                       maxLines: 6,
