@@ -1,7 +1,7 @@
 # ChatGPT Clone with Azure, OpenAI, and Flutter
 
 This project is a partial clone of ChatGPT, built using Azure, OpenAI, and the Flutter framework, as described in
-the [comprehensive article](link_to_article_here) that accompanies this codebase. The goal is to create an intelligent chatbot capable of engaging in dynamic
+the [comprehensive article](https://alexandre-lipp.medium.com/chatgpt-clone-with-flutter-and-azure-openai-95b4aa908f3f) that accompanies this codebase. The goal is to create an intelligent chatbot capable of engaging in dynamic
 conversations with users, powered by cutting-edge AI technologies.
 
 ## Preview
@@ -12,7 +12,7 @@ conversations with users, powered by cutting-edge AI technologies.
 
 In order to run the application successfully, please follow these steps:
 
-1. Create an `api_keys.dart` file in the `src` directory, as detailed in the [accompanying article](link_to_article_here). Ensure that you securely store your
+1. Create an `api_keys.dart` file in the `src` directory, as detailed in the [accompanying article](https://alexandre-lipp.medium.com/chatgpt-clone-with-flutter-and-azure-openai-95b4aa908f3f). Ensure that you securely store your
    API keys and other sensitive information.
 
 2. Clone or download this repository to your local machine.
